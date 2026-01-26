@@ -1,4 +1,4 @@
-package com.example.aemix.entity.enums;
+package com.example.aemix.entities.enums;
 
 public enum Role {
     USER,

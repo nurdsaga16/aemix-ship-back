@@ -1,6 +1,8 @@
 package com.example.aemix.config;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import javax.crypto.SecretKey;
@@ -10,6 +12,7 @@ public class JwtConfig {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
+    @Getter
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 

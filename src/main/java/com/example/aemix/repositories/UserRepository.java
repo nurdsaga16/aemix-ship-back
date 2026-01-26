@@ -1,5 +1,5 @@
-package com.example.aemix.repository;
-import com.example.aemix.entity.User;
+package com.example.aemix.repositories;
+import com.example.aemix.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -7,5 +7,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByEmail(String email);
-
+    Optional<User> findByTelegramId(Long telegramId);
+    Optional<User> findByVerificationCode(String verificationCode);
 }

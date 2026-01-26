@@ -1,6 +1,6 @@
-package com.example.aemix.entity;
+package com.example.aemix.entities;
 
-import com.example.aemix.entity.enums.Role;
+import com.example.aemix.entities.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,9 +26,32 @@ public class User implements UserDetails {
     @GeneratedValue
     private Integer id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false )
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(name = "telegram_id", unique = true)
+    private Long telegramId;
+
+    @Column(name = "telegram_username")
+    private String telegramUsername;
+
+    @Column(name = "telegram_first_name")
+    private String telegramFirstName;
+
+    @Column(name = "telegram_last_name")
+    private String telegramLastName;
+
+    @Column(name = "telegram_photo_url")
+    private String telegramPhotoUrl;
+
+    @Column(name = "verification_code")
+    private String verificationCode;
+
+    @Column(name = "verification_expiration")
+    private LocalDateTime verificationExpiresAt;
 
     @Enumerated(EnumType.STRING)
     private Role role;

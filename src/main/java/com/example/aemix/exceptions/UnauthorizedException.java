@@ -1,4 +1,4 @@
-package com.example.aemix.exception;
+package com.example.aemix.exceptions;
 
 public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {
