@@ -4,8 +4,8 @@ import com.example.aemix.entity.EmailVerificationToken;
 import com.example.aemix.entity.User;
 import com.example.aemix.repository.EmailVerificationTokenRepository;
 import com.example.aemix.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,9 +30,15 @@ public class EmailVerificationService {
     @Value("${app.verify.token-ttl-minutes}")
     private long ttlMinutes;
 
+    @Transactional
     public void sendVerification(User user) {
+        EmailVerificationToken t = tokenRepo.findEmailVerificationTokenByUser(user);
+        if (t != null){
+            tokenRepo.deleteEmailVerificationTokenByUser(user);
+        }
+
         String token = UUID.randomUUID().toString().replace("-", "");
-        EmailVerificationToken t = new EmailVerificationToken();
+        t = new EmailVerificationToken();
         t.setToken(token);
         t.setUser(user);
         t.setExpiresAt(Instant.now().plus(Duration.ofMinutes(ttlMinutes)));
