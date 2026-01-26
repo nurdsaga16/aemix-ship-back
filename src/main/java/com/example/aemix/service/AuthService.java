@@ -33,7 +33,7 @@ public class AuthService {
 
         verificationService.sendVerification(user);
 
-        return "User registered successfully";
+        return "We have sent an email verification code. Please check your email.";
     }
 
     public AuthResponse login(AuthRequest request) {
