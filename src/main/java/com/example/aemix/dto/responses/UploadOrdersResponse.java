@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImportOrdersResponse {
+public class UploadOrdersResponse {
     private int total;
     private int created;
     private int skipped;

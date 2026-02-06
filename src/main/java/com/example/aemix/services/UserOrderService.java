@@ -22,6 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Service
@@ -34,7 +36,7 @@ public class UserOrderService {
 
     public Page<OrderResponse> getMyOrders(
             Long userId,
-            String trackCode,
+            String text,
             Status status,
             Long cityId,
             LocalDateTime fromDate,
@@ -54,7 +56,7 @@ public class UserOrderService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<UserOrders> userOrdersPage = userOrdersRepository.findUserOrders(
-                userId, trackCode, status, cityId, fromDate, toDate, pageable
+                userId, text, status, cityId, fromDate, toDate, pageable
         );
 
         return userOrdersPage.map(userOrder -> {
@@ -63,6 +65,11 @@ public class UserOrderService {
             response.setTitle(userOrder.getTitle());
             return response;
         });
+    }
+
+    public long getActiveOrdersCount(Long userId) {
+        List<Status> activeStatuses = Arrays.asList(Status.INTERNATIONAL_SHIPPING, Status.ARRIVED);
+        return userOrdersRepository.countByUserIdAndOrderStatusIn(userId, activeStatuses);
     }
 
     @Transactional
@@ -87,6 +94,25 @@ public class UserOrderService {
         log.info("Пользователь {} добавил заказ {}", user.getEmailOrTelegramId(), trackCode);
         
         OrderResponse response = orderMapper.toDto(order);
+        response.setTitle(userOrder.getTitle());
+        return response;
+    }
+
+    @Transactional
+    public OrderResponse updateOrderTitle(String trackCode, String title, User user) {
+        UserOrders userOrder = userOrdersRepository.findByOrderTrackCode(trackCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Заказ с трек-кодом " + trackCode + " не найден"));
+
+        if (!userOrder.getUser().getId().equals(user.getId())) {
+            throw new BusinessValidationException("Вы можете изменять только свои заказы");
+        }
+
+        userOrder.setTitle(title != null ? title.trim() : null);
+        userOrdersRepository.save(userOrder);
+
+        log.info("Пользователь {} обновил название заказа {}", user.getEmailOrTelegramId(), trackCode);
+
+        OrderResponse response = orderMapper.toDto(userOrder.getOrder());
         response.setTitle(userOrder.getTitle());
         return response;
     }

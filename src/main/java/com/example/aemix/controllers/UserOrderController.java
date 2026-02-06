@@ -1,6 +1,7 @@
 package com.example.aemix.controllers;
 
 import com.example.aemix.dto.requests.AddUserOrderRequest;
+import com.example.aemix.dto.requests.UpdateUserOrderTitleRequest;
 import com.example.aemix.dto.responses.OrderResponse;
 import com.example.aemix.dto.responses.PaginationResponse;
 import com.example.aemix.entities.User;
@@ -37,7 +38,7 @@ public class UserOrderController {
 
     @Operation(
             summary = "Получить список своих заказов",
-            description = "Возвращает список заказов текущего пользователя с фильтрацией по трек-коду, статусу, городу, датам и пагинацией"
+            description = "Возвращает список заказов текущего пользователя с фильтрацией по трек-коду или названию, статусу, городу, датам и пагинацией"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -51,8 +52,8 @@ public class UserOrderController {
     @GetMapping
     public ResponseEntity<PaginationResponse<OrderResponse>> getMyOrders(
             @AuthenticationPrincipal Jwt jwt,
-            @Parameter(description = "Поиск по трек-коду")
-            @RequestParam(required = false) String trackCode,
+            @Parameter(description = "Поиск по трек-коду или названию заказа")
+            @RequestParam(required = false) String text,
             @Parameter(description = "Фильтр по статусу")
             @RequestParam(required = false) Status status,
             @Parameter(description = "Фильтр по ID города")
@@ -69,8 +70,19 @@ public class UserOrderController {
             @RequestParam(defaultValue = "CREATED_DESC") OrderSort sort
     ) {
         User user = authService.getUser(jwt);
-        var orders = userOrderService.getMyOrders(user.getId(), trackCode, status, cityId, fromDate, toDate, page, size, sort);
+        var orders = userOrderService.getMyOrders(user.getId(), text, status, cityId, fromDate, toDate, page, size, sort);
         return ResponseEntity.ok(new PaginationResponse<>(orders));
+    }
+
+    @Operation(
+            summary = "Количество активных заказов",
+            description = "Возвращает количество заказов пользователя в статусе В ПУТИ (INTERNATIONAL_SHIPPING) или ПРИБЫЛ (ARRIVED)"
+    )
+    @GetMapping("/active-count")
+    public ResponseEntity<Long> getActiveOrdersCount(@AuthenticationPrincipal Jwt jwt) {
+        User user = authService.getUser(jwt);
+        long count = userOrderService.getActiveOrdersCount(user.getId());
+        return ResponseEntity.ok(count);
     }
 
     @Operation(
@@ -96,5 +108,32 @@ public class UserOrderController {
     ) {
         User user = authService.getUser(jwt);
         return ResponseEntity.ok(userOrderService.addOrderToUser(request, user));
+    }
+
+    @Operation(
+            summary = "Обновить название заказа",
+            description = "Обновляет название заказа пользователя. Пользователь может изменять только свои заказы"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Название заказа успешно обновлено",
+                    content = @Content(schema = @Schema(implementation = OrderResponse.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Данные невалидны", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Заказ не найден", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав для изменения этого заказа", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
+    })
+    @PutMapping("/{trackCode}/title")
+    public ResponseEntity<OrderResponse> updateOrderTitle(
+            @AuthenticationPrincipal Jwt jwt,
+            @Parameter(description = "Трек-код заказа", required = true)
+            @PathVariable String trackCode,
+            @RequestBody @Valid UpdateUserOrderTitleRequest request
+    ) {
+        User user = authService.getUser(jwt);
+        return ResponseEntity.ok(userOrderService.updateOrderTitle(trackCode, request.getTitle(), user));
     }
 }

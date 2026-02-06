@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class ImportOrdersRequest {
+public class UploadOrdersRequest {
     
     @NotNull(message = "ID города обязателен")
     private Long cityId;

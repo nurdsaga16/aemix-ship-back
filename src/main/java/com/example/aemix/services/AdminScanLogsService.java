@@ -4,7 +4,7 @@ import com.example.aemix.dto.responses.ScanLogsResponse;
 import com.example.aemix.entities.ScanLogs;
 import com.example.aemix.mappers.ScanLogsMapper;
 import com.example.aemix.entities.enums.Status;
-import com.example.aemix.repositories.ScanLogsRepository;
+import com.example.aemix.repositories.AdminScanLogsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AdminScanLogsService {
 
-    private final ScanLogsRepository scanLogsRepository;
+    private final AdminScanLogsRepository scanLogsRepository;
     private final ScanLogsMapper scanLogsMapper;
 
     public Page<ScanLogsResponse> getScanLogs(

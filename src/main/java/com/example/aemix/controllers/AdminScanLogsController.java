@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
 @RequestMapping("${api.version}/admin/scan-logs")
-@Tag(name = "Admin Scan Events", description = "Просмотр логов сканирования заказов")
+@Tag(name = "Admin Scan Logs", description = "Просмотр логов сканирования заказов")
 public class AdminScanLogsController {
 
     private final AdminScanLogsService adminScanLogsService;
