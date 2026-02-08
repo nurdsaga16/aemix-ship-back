@@ -219,6 +219,7 @@ public class AuthController {
         return ResponseEntity.ok("Password changed successfully");
     }
 
+
     @GetMapping("/me")
     @Operation(summary = "Проверка сессии", description = "Возвращает данные текущего пользователя, если он авторизован и существует в БД")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal Jwt jwt) {
