@@ -1,34 +1,23 @@
 package com.example.aemix.services;
-import com.resend.Resend;
-import com.resend.core.exception.ResendException;
-import com.resend.services.emails.model.CreateEmailOptions;
-import com.resend.services.emails.model.CreateEmailResponse;
-import org.springframework.beans.factory.annotation.Value;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.AllArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class EmailService {
+    private JavaMailSender emailSender;
 
-    private final Resend resend;
-
-    public EmailService(@Value("${RESEND_API_KEY}") String apiKey) {
-        this.resend = new Resend(apiKey);
-    }
-
-    public String sendVerificationEmail(String to, String subject, String text) {
-        try {
-            CreateEmailOptions options = CreateEmailOptions.builder()
-                    .from("onboarding@resend.dev")
-                    .to(to)
-                    .subject(subject)
-                    .html(text)
-                    .build();
-
-            CreateEmailResponse response = resend.emails().send(options);
-            return response.getId();
-
-        } catch (ResendException e) {
-            throw new RuntimeException("Failed to send email via Resend: " + e.getMessage(), e);
-        }
+    public void sendVerificationEmail(String to, String subject, String text) throws MessagingException {
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(text, true);
+        emailSender.send(message);
     }
 }
