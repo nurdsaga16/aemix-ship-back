@@ -17,6 +17,7 @@ public class OrderResponse {
     private Status status;
     private Long cityId;
     private String cityName;
+    private String emailOrTelegramUsername;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String title;

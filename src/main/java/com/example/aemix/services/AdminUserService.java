@@ -1,11 +1,18 @@
 package com.example.aemix.services;
 
 import com.example.aemix.dto.requests.UserUpdateRequest;
+import com.example.aemix.dto.responses.AdminUserResponse;
+import com.example.aemix.dto.responses.OrderResponse;
+import com.example.aemix.dto.responses.PaginationResponse;
 import com.example.aemix.dto.responses.UserResponse;
+import com.example.aemix.entities.Order;
 import com.example.aemix.entities.User;
+import com.example.aemix.entities.UserOrders;
 import com.example.aemix.entities.enums.Role;
 import com.example.aemix.exceptions.ResourceNotFoundException;
+import com.example.aemix.mappers.OrderMapper;
 import com.example.aemix.mappers.UserMapper;
+import com.example.aemix.repositories.UserOrdersRepository;
 import com.example.aemix.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +29,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 public class AdminUserService {
     private final UserRepository userRepository;
+    private final UserOrdersRepository userOrdersRepository;
     private final UserMapper userMapper;
+    private final OrderMapper orderMapper;
 
     public Page<UserResponse> getUsers(
             String text,
@@ -54,5 +63,30 @@ public class AdminUserService {
         }
 
         userRepository.delete(user);
+    }
+
+    public AdminUserResponse getUser(String emailOrTelegramId, int page, int size) {
+        User user = userRepository.findByIdentifier(emailOrTelegramId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserOrders> userOrdersPage = userOrdersRepository.findUserOrdersByUser(user, pageable);
+
+        String emailOrTelegramUsername = emailOrTelegramId;
+        if(user.getTelegramUser()!=null && !user.getTelegramUser().getTelegramUsername().isEmpty()){
+            emailOrTelegramUsername = user.getTelegramUser().getTelegramUsername();
+        }
+
+        AdminUserResponse adminUserResponse = AdminUserResponse.builder()
+                .emailOrTelegramUsername(emailOrTelegramUsername)
+                .role(user.getRole())
+                .orders(new PaginationResponse<>(userOrdersPage.map(userOrder -> {
+                    Order order = userOrder.getOrder();
+                    OrderResponse response = orderMapper.toDto(order);
+                    response.setTitle(userOrder.getTitle());
+                    return response;
+                })))
+                .build();
+
+        return  adminUserResponse;
     }
 }

@@ -10,6 +10,7 @@ public interface OrderMapper {
     
     @Mapping(target = "cityId", source = "city.id")
     @Mapping(target = "cityName", source = "city.name")
+    @Mapping(target = "emailOrTelegramUsername", source = "order.userOrders.user.emailOrTelegramId")
     @Mapping(target = "title", ignore = true)
     OrderResponse toDto(Order order);
     

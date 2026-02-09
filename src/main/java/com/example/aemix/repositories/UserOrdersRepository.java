@@ -1,5 +1,6 @@
 package com.example.aemix.repositories;
 
+import com.example.aemix.entities.User;
 import com.example.aemix.entities.UserOrders;
 import com.example.aemix.entities.enums.Status;
 
@@ -62,6 +63,27 @@ public interface UserOrdersRepository extends JpaRepository<UserOrders, Long> {
     long countByUserIdAndOrderStatusIn(
             @Param("userId") Long userId,
             @Param("statuses") List<Status> statuses
+    );
+
+    @Query(
+            value = """
+        SELECT uo
+        FROM UserOrders uo
+        LEFT JOIN uo.order o
+        LEFT JOIN o.city c
+        WHERE uo.user = :user
+        """,
+            countQuery = """
+        SELECT COUNT(uo)
+        FROM UserOrders uo
+        LEFT JOIN uo.order o
+        LEFT JOIN o.city c
+        WHERE uo.user = :user
+        """
+    )
+    Page<UserOrders> findUserOrdersByUser(
+            @Param("user") User user,
+            Pageable pageable
     );
 
 }

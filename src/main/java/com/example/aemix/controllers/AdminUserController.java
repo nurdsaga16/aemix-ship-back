@@ -1,6 +1,7 @@
 package com.example.aemix.controllers;
 
 import com.example.aemix.dto.requests.UserUpdateRequest;
+import com.example.aemix.dto.responses.AdminUserResponse;
 import com.example.aemix.dto.responses.PaginationResponse;
 import com.example.aemix.dto.responses.UserResponse;
 import com.example.aemix.entities.enums.Role;
@@ -103,5 +104,15 @@ public class AdminUserController {
     ) {
         adminUserService.deleteUser(emailOrTelegramId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{emailOrTelegramId}")
+    public ResponseEntity<AdminUserResponse> getUserById(
+            @PathVariable("emailOrTelegramId") String emailOrTelegramId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ){
+        AdminUserResponse user = adminUserService.getUser(emailOrTelegramId, page, size);
+        return ResponseEntity.ok(user);
     }
 }

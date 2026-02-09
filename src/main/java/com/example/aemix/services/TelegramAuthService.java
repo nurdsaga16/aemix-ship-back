@@ -43,7 +43,7 @@ public class TelegramAuthService {
     @Value("${app.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
-    @Value("${app.telegram-mini-app-link:https://t.me/aemix_ship_bot/aemix}")
+    @Value("${app.telegram-mini-app-link}")
     private String miniAppLink;
 
     private final UserRepository userRepository;
